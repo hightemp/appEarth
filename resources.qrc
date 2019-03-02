@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/main">
+        <file>earth.jpg</file>
+        <file>world_cities.csv</file>
+        <file>fcolorboxshader.fsh</file>
+        <file>vcolorboxshader.vsh</file>
+    </qresource>
+</RCC>
