@@ -2,8 +2,6 @@
 
 Surface::Surface(QWidget *parent) : QOpenGLWidget(parent)
 {
-    //qDebug() << glGetString(GL_VERSION);
-
     this->oCitiesCoordinates = new QVector<Coordinate>();
     this->oAdditionalPointsCoordinates = new QVector<Coordinate>();
 
@@ -45,6 +43,22 @@ Surface::~Surface()
 
 void Surface::initializeGL()
 {
+    /*
+    QSurfaceFormat oFormat;
+    oFormat.setDepthBufferSize(24);
+    oFormat.setMajorVersion(4);
+    oFormat.setMinorVersion(3);
+    oFormat.setSamples(4);
+    oFormat.setProfile(QSurfaceFormat::CoreProfile);
+    this->setFormat(oFormat);
+    */
+
+    QOpenGLFunctions *oOpenGLFunctions = this->context()->functions();
+
+    qDebug() << "OpenGL type: " << (this->context()->isOpenGLES() ? "OpenGL ES" : "OpenGL");
+    qDebug() << "OpenGL version: " << QString((char *) oOpenGLFunctions->glGetString(GL_VERSION)) << endl;
+    qDebug() << "GLSL version: " << QString((char *) oOpenGLFunctions->glGetString(GL_SHADING_LANGUAGE_VERSION)) << endl;
+
     glClearColor(0.0, 0.0, 0.0, 1.0);
 
     glEnable(GL_DEPTH_TEST);
@@ -182,6 +196,7 @@ void Surface::paintGL()
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_POINT_SMOOTH);
         glPointSize(5.0);
+        glLineWidth(5.0);
 
         for (int iIndex=0; iIndex<this->oCitiesCoordinates->length(); iIndex++) {
             glPushMatrix();
@@ -195,11 +210,13 @@ void Surface::paintGL()
             float fY = -sin(qDegreesToRadians(oCoordinate.fLatitude));
             float fZ = -sin(qDegreesToRadians(oCoordinate.fLongitude))*cos(qDegreesToRadians(oCoordinate.fLatitude));
 
+            /*
             glBegin(GL_LINES);
             glColor3f(1.0, 0.0, 0.0);
             glVertex3f(1.0*fX, 1.0*fY, 1.0*fZ);
             glVertex3f(1.01*fX, 1.01*fY, 1.01*fZ);
             glEnd();
+            */
 
             glBegin(GL_POINTS);
             glColor4f(1.0, 0.0, 0.0, 0.5);
@@ -209,6 +226,8 @@ void Surface::paintGL()
             glPopMatrix();
         }
 
+        glPointSize(1.0);
+        glLineWidth(1.0);
         glDisable(GL_POINT_SMOOTH);
         glBlendFunc(GL_NONE, GL_NONE);
         glDisable(GL_BLEND);
@@ -220,6 +239,7 @@ void Surface::paintGL()
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_POINT_SMOOTH);
         glPointSize(5.0);
+        glLineWidth(5.0);
 
         const Coordinate &oCityCoordinate = this->oCitiesCoordinates->at(this->iCityId);
 
@@ -245,6 +265,8 @@ void Surface::paintGL()
 
         glPopMatrix();
 
+        glPointSize(1.0);
+        glLineWidth(1.0);
         glDisable(GL_POINT_SMOOTH);
         glBlendFunc(GL_NONE, GL_NONE);
         glDisable(GL_BLEND);
@@ -256,6 +278,7 @@ void Surface::paintGL()
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_POINT_SMOOTH);
         glPointSize(5.0);
+        glLineWidth(5.0);
 
         for (int iIndex=0; iIndex<this->oAdditionalPointsCoordinates->length(); iIndex++) {
             glPushMatrix();
@@ -283,6 +306,8 @@ void Surface::paintGL()
             glPopMatrix();
         }
 
+        glPointSize(1.0);
+        glLineWidth(1.0);
         glDisable(GL_POINT_SMOOTH);
         glBlendFunc(GL_NONE, GL_NONE);
         glDisable(GL_BLEND);

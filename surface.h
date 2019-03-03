@@ -11,8 +11,12 @@
 #include <QMatrix4x4>
 #include <QOpenGLShader>
 #include <QOpenGLShaderProgram>
+#include <QOpenGLFunctions>
+#include <QOpenGLVersionFunctions>
+#include <QtOpenGL/qglfunctions>
 
 #if defined(Q_OS_MACOS)
+#include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
 #endif
 #if defined(Q_OS_LINUX)

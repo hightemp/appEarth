@@ -8,6 +8,8 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+QT += gui
+
 TARGET = appEarth
 TEMPLATE = app
 
@@ -38,6 +40,12 @@ HEADERS += \
 FORMS += \
         mainwindow.ui
 
+QMAKE_CXXFLAGS_RELEASE -= -O1
+QMAKE_CXXFLAGS_RELEASE -= -O2
+QMAKE_CXXFLAGS_RELEASE *= -O3
+QMAKE_CXXFLAGS_RELEASE += -mavx
+QMAKE_CXXFLAGS_RELEASE += -march=native
+
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
@@ -48,4 +56,5 @@ RESOURCES += \
 
 DISTFILES += \
     fcolorboxshader.fsh \
-    vcolorboxshader.vsh
+    vcolorboxshader.vsh \
+    README.md
