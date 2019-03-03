@@ -52,8 +52,7 @@ public:
     QVector4D fnCalculateWorldMousePosition(QPoint oPoint);
     QVector3D fnCalculateVectorAnglesToAxis(QVector4D oVector);
 
-protected:
-
+public:
     QOpenGLTexture *oEarthTexture;
     QVector<Coordinate> *oCoordinates;
 

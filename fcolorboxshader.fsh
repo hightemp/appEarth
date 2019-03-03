@@ -21,8 +21,8 @@ float fnVectorPlaneDistanse(vec3 v3Vertex, vec3 v3PlanePoint, vec3 v3PlaneNormal
     float fSn, fSd, fSb;
     vec3 v3B;
 
-    fSn = dot(v3PlaneNormal, (v3Vertex-v3PlanePoint));
-    fSd = -dot(v3PlaneNormal, v3PlaneNormal);
+    fSn = -dot(v3PlaneNormal, (-v3Vertex+v3PlanePoint));
+    fSd = dot(v3PlaneNormal, v3PlaneNormal);
     fSb = fSn / fSd;
     v3B = v3Vertex + fSb * v3PlaneNormal;
     return distance(v3Vertex, v3B);

@@ -12,26 +12,80 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->menuBar->hide();
     ui->mainToolBar->hide();
 
-    QHBoxLayout *oMainLayout = new QHBoxLayout();
+    this->oMainLayout = new QHBoxLayout();
 
-    this->oSurface = new Surface(this);
-    oMainLayout->addWidget(this->oSurface);
+    this->oSurface = new Surface();
+    this->oMainLayout->addWidget(this->oSurface);
 
-    QVBoxLayout *oRightVBoxLayout = new QVBoxLayout();
-    oMainLayout->addLayout(oRightVBoxLayout);
+    this->oRightVBoxLayout = new QVBoxLayout();
+    this->oMainLayout->addLayout(this->oRightVBoxLayout);
 
-    QGroupBox *oOptionsGroupBox = new QGroupBox();
+    this->oOptionsGroupBox = new QGroupBox();
 
-    oOptionsGroupBox->setMinimumWidth(200);
-    oOptionsGroupBox->setMaximumWidth(200);
+    this->oOptionsGroupBox->setMinimumWidth(200);
+    this->oOptionsGroupBox->setMaximumWidth(200);
 
-    oRightVBoxLayout->addWidget(oOptionsGroupBox);
+    this->oOptionsGroupBox->setTitle("Options");
 
-    ui->centralWidget->setLayout(oMainLayout);
+    this->oRightVBoxLayout->addWidget(this->oOptionsGroupBox);
+
+    this->oOptionsGroupBoxVBoxLayout = new QVBoxLayout();
+
+    this->oOptionsGroupBox->setLayout(this->oOptionsGroupBoxVBoxLayout);
+
+    this->oShowMousePositionVectorsCheckBox = new QCheckBox();
+    this->oShowMousePositionVectorsCheckBox->setText("Show mouse position vectors");
+    this->oShowMousePositionVectorsCheckBox->setChecked(this->oSurface->bShowMousePositionVectors);
+    connect(this->oShowMousePositionVectorsCheckBox, SIGNAL(clicked(bool)), this, SLOT(fnOnShowMousePositionVectorsChange(bool)));
+    this->oOptionsGroupBoxVBoxLayout->addWidget(this->oShowMousePositionVectorsCheckBox);
+
+    this->oShowAxisCheckBox = new QCheckBox();
+    this->oShowAxisCheckBox->setText("Show axis");
+    this->oShowAxisCheckBox->setChecked(this->oSurface->bShowAxis);
+    connect(this->oShowAxisCheckBox, SIGNAL(clicked(bool)), this, SLOT(fnOnShowAxisCheckBoxChange(bool)));
+    this->oOptionsGroupBoxVBoxLayout->addWidget(this->oShowAxisCheckBox);
+
+    this->oShowEarthCheckBox = new QCheckBox();
+    this->oShowEarthCheckBox->setText("Show earth");
+    this->oShowEarthCheckBox->setChecked(this->oSurface->bShowEarth);
+    connect(this->oShowEarthCheckBox, SIGNAL(clicked(bool)), this, SLOT(fnOnShowEarthCheckBoChange(bool)));
+    this->oOptionsGroupBoxVBoxLayout->addWidget(this->oShowEarthCheckBox);
+
+    this->oShowCitiesCheckBox = new QCheckBox();
+    this->oShowCitiesCheckBox->setText("Show cities");
+    this->oShowCitiesCheckBox->setChecked(this->oSurface->bShowCities);
+    connect(this->oShowCitiesCheckBox, SIGNAL(clicked(bool)), this, SLOT(fnOnShowCitiesCheckBoxChange(bool)));
+    this->oOptionsGroupBoxVBoxLayout->addWidget(this->oShowCitiesCheckBox);
+
+    ui->centralWidget->setLayout(this->oMainLayout);
 }
 
 MainWindow::~MainWindow()
 {
     delete this->oSurface;
     delete ui;
+}
+
+void MainWindow::fnOnShowMousePositionVectorsChange(bool bValue)
+{
+    this->oSurface->bShowMousePositionVectors = bValue;
+    this->oSurface->repaint();
+}
+
+void MainWindow::fnOnShowAxisCheckBoxChange(bool bValue)
+{
+    this->oSurface->bShowAxis = bValue;
+    this->oSurface->repaint();
+}
+
+void MainWindow::fnOnShowEarthCheckBoChange(bool bValue)
+{
+    this->oSurface->bShowEarth = bValue;
+    this->oSurface->repaint();
+}
+
+void MainWindow::fnOnShowCitiesCheckBoxChange(bool bValue)
+{
+    this->oSurface->bShowCities = bValue;
+    this->oSurface->repaint();
 }

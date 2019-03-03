@@ -7,6 +7,10 @@
 #include <QDesktopWidget>
 #include <QDebug>
 #include <QGroupBox>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QSlider>
+#include <QLabel>
 
 #include "surface.h"
 
@@ -25,6 +29,21 @@ public:
 protected:
     Surface *oSurface;
     Ui::MainWindow *ui;
+
+    QHBoxLayout *oMainLayout;
+    QVBoxLayout *oRightVBoxLayout;
+    QGroupBox *oOptionsGroupBox;
+    QVBoxLayout *oOptionsGroupBoxVBoxLayout;
+    QCheckBox *oShowMousePositionVectorsCheckBox;
+    QCheckBox *oShowAxisCheckBox;
+    QCheckBox *oShowEarthCheckBox;
+    QCheckBox *oShowCitiesCheckBox;
+
+public slots:
+    void fnOnShowMousePositionVectorsChange(bool bValue);
+    void fnOnShowAxisCheckBoxChange(bool bValue);
+    void fnOnShowEarthCheckBoChange(bool bValue);
+    void fnOnShowCitiesCheckBoxChange(bool bValue);
 };
 
 #endif // MAINWINDOW_H

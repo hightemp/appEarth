@@ -42,17 +42,11 @@ void Surface::initializeGL()
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
+    glEnable(GL_ALPHA_TEST);
 
     QImage oEarthImage = QImage(QString(":/main/earth.jpg"));
     this->oEarthTexture = new QOpenGLTexture(oEarthImage);
 
-    /*
-    QOpenGLShader oVColorBoxShader(QOpenGLShader::Vertex);
-    oVColorBoxShader.compileSourceFile(":/main/vcolorboxshader.vsh");
-
-    QOpenGLShader oFColorBoxShader(QOpenGLShader::Fragment);
-    oFColorBoxShader.compileSourceFile(":/main/fcolorboxshader.fsh");
-    */
     poVColorBoxShader = new QOpenGLShader(QOpenGLShader::Vertex);
     poFColorBoxShader = new QOpenGLShader(QOpenGLShader::Fragment);
 
@@ -174,29 +168,39 @@ void Surface::paintGL()
     }
 
     if (this->bShowCities) {
+        glAlphaFunc(GL_NOTEQUAL, 0);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_POINT_SMOOTH);
+        glPointSize(5.0);
+
         for (int iIndex=0; iIndex<this->oCoordinates->length(); iIndex++) {
             glPushMatrix();
 
             glRotatef(90, 1.0, 0.0, 0.0);
             glRotatef(90+30, 0.0, 1.0, 0.0);
 
-            float x = 1.01*cos(qDegreesToRadians(this->oCoordinates->at(iIndex).fLongitude))*cos(qDegreesToRadians(this->oCoordinates->at(iIndex).fLatitude));
-            float y = 1.01*-sin(qDegreesToRadians(this->oCoordinates->at(iIndex).fLatitude));
-            float z = 1.01*-sin(qDegreesToRadians(this->oCoordinates->at(iIndex).fLongitude))*cos(qDegreesToRadians(this->oCoordinates->at(iIndex).fLatitude));
+            float fX = cos(qDegreesToRadians(this->oCoordinates->at(iIndex).fLongitude))*cos(qDegreesToRadians(this->oCoordinates->at(iIndex).fLatitude));
+            float fY = -sin(qDegreesToRadians(this->oCoordinates->at(iIndex).fLatitude));
+            float fZ = -sin(qDegreesToRadians(this->oCoordinates->at(iIndex).fLongitude))*cos(qDegreesToRadians(this->oCoordinates->at(iIndex).fLatitude));
 
             glBegin(GL_LINES);
             glColor3f(1.0, 0.0, 0.0);
-            glVertex3f(0.0, 0.0, 0.0);
-            glVertex3f(x, y, z);
+            glVertex3f(1.0*fX, 1.0*fY, 1.0*fZ);
+            glVertex3f(1.01*fX, 1.01*fY, 1.01*fZ);
             glEnd();
 
             glBegin(GL_POINTS);
-            glColor3f(1.0, 0.0, 0.0);
-            glVertex3f(x, y, z);
+            glColor4f(1.0, 0.0, 0.0, 0.5);
+            glVertex3f(fX, fY, fZ);
             glEnd();
 
             glPopMatrix();
         }
+
+        glDisable(GL_POINT_SMOOTH);
+        glBlendFunc(GL_NONE, GL_NONE);
+        glDisable(GL_BLEND);
     }
 
     glFlush();
