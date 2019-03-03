@@ -1,3 +1,3 @@
 # appEarth
 
-![screenshot](screenshot.jpg)
+![screenshot](master/screenshot.jpg)
