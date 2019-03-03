@@ -3,8 +3,10 @@
 
 #include <QMainWindow>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QDesktopWidget>
 #include <QDebug>
+#include <QGroupBox>
 
 #include "surface.h"
 

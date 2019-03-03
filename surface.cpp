@@ -2,6 +2,8 @@
 
 Surface::Surface(QWidget *parent) : QOpenGLWidget(parent)
 {
+    //qDebug() << glGetString(GL_VERSION);
+
     this->oCoordinates = new QVector<Coordinate>();
 
     QFile oCSVFile(":/main/world_cities.csv");
@@ -11,16 +13,25 @@ Surface::Surface(QWidget *parent) : QOpenGLWidget(parent)
     }
 
     QStringList wordList;
+
+    QByteArray line = oCSVFile.readLine();
+
     while (!oCSVFile.atEnd()) {
         QByteArray line = oCSVFile.readLine();
         QList<QByteArray> oSplitedLine = line.split(',');
 
-        this->oCoordinates->push_back(Coordinate(oSplitedLine[2].toFloat(), oSplitedLine[3].toFloat()));
+        this->oCoordinates->push_back(Coordinate(
+            oSplitedLine[2].toFloat(),
+            oSplitedLine[3].toFloat(),
+            QString(oSplitedLine[0])
+        ));
     }
 }
 
 Surface::~Surface()
 {
+    delete poVColorBoxShader;
+    delete poFColorBoxShader;
     delete this->oEarthTexture;
     delete this->oCoordinates;
 }
@@ -34,6 +45,29 @@ void Surface::initializeGL()
 
     QImage oEarthImage = QImage(QString(":/main/earth.jpg"));
     this->oEarthTexture = new QOpenGLTexture(oEarthImage);
+
+    /*
+    QOpenGLShader oVColorBoxShader(QOpenGLShader::Vertex);
+    oVColorBoxShader.compileSourceFile(":/main/vcolorboxshader.vsh");
+
+    QOpenGLShader oFColorBoxShader(QOpenGLShader::Fragment);
+    oFColorBoxShader.compileSourceFile(":/main/fcolorboxshader.fsh");
+    */
+    poVColorBoxShader = new QOpenGLShader(QOpenGLShader::Vertex);
+    poFColorBoxShader = new QOpenGLShader(QOpenGLShader::Fragment);
+
+    poVColorBoxShader->compileSourceFile(":/main/vcolorboxshader.vsh");
+    poFColorBoxShader->compileSourceFile(":/main/fcolorboxshader.fsh");
+
+    oShaderProgram.addShader(poVColorBoxShader);
+    oShaderProgram.addShader(poFColorBoxShader);
+
+    qDebug() << oShaderProgram.log();
+
+    if (!oShaderProgram.link()) {
+        qDebug() << "Error while linking shader program";
+        return;
+    }
 }
 
 void Surface::resizeGL(int w, int h)
@@ -123,12 +157,19 @@ void Surface::paintGL()
     if (this->bShowEarth) {
         GLUquadricObj *oQuadric = gluNewQuadric();
         gluQuadricNormals(oQuadric, GLU_SMOOTH);
-        gluQuadricTexture(oQuadric, true);
+        gluQuadricTexture(oQuadric, GL_TRUE);
+
+        oShaderProgram.bind();
 
         glColor3f(1.0, 1.0, 1.0);
-        this->oEarthTexture->bind();
+        this->oEarthTexture->bind(0);
 
-        gluSphere(oQuadric, 0.5, 360, 360);
+        oShaderProgram.setUniformValue("texture", 0);
+
+        gluSphere(oQuadric, 1.0, 360, 360);
+
+        oShaderProgram.release();
+
         gluDeleteQuadric(oQuadric);
     }
 
@@ -139,13 +180,18 @@ void Surface::paintGL()
             glRotatef(90, 1.0, 0.0, 0.0);
             glRotatef(90+30, 0.0, 1.0, 0.0);
 
-            float x = 0.55*cos(qDegreesToRadians(this->oCoordinates->at(iIndex).fLongitude))*cos(qDegreesToRadians(this->oCoordinates->at(iIndex).fLatitude));
-            float y = 0.55*-sin(qDegreesToRadians(this->oCoordinates->at(iIndex).fLatitude));
-            float z = 0.55*-sin(qDegreesToRadians(this->oCoordinates->at(iIndex).fLongitude))*cos(qDegreesToRadians(this->oCoordinates->at(iIndex).fLatitude));
+            float x = 1.01*cos(qDegreesToRadians(this->oCoordinates->at(iIndex).fLongitude))*cos(qDegreesToRadians(this->oCoordinates->at(iIndex).fLatitude));
+            float y = 1.01*-sin(qDegreesToRadians(this->oCoordinates->at(iIndex).fLatitude));
+            float z = 1.01*-sin(qDegreesToRadians(this->oCoordinates->at(iIndex).fLongitude))*cos(qDegreesToRadians(this->oCoordinates->at(iIndex).fLatitude));
 
             glBegin(GL_LINES);
             glColor3f(1.0, 0.0, 0.0);
             glVertex3f(0.0, 0.0, 0.0);
+            glVertex3f(x, y, z);
+            glEnd();
+
+            glBegin(GL_POINTS);
+            glColor3f(1.0, 0.0, 0.0);
             glVertex3f(x, y, z);
             glEnd();
 
@@ -194,7 +240,7 @@ QVector4D Surface::fnCalculateWorldMousePosition(QPoint oPoint)
     GLfloat fWinZ = -1;
 
     QVector4D oVectorMousePosition(
-        (2.0f*((float)(oPoint.y()-0)/(this->height()-0)))-1.0f,
+        1.0f-(2.0f*((float)(oPoint.y()-0)/(this->height()-0))),
         1.0f-(2.0f*((float)(oPoint.x()-0)/(this->width()-0))),
         (float)2.0 * fWinZ - (float)1.0,
         1.0
@@ -223,7 +269,7 @@ void Surface::mouseMoveEvent(QMouseEvent *oEvent)
         this->oNewMousePosition = oEvent->pos();
         this->oOldMousePosition = this->oLastMousePosition;
 
-        this->oRotateAngles += this->oRotateAnglesDelta;
+        this->oRotateAngles += this->oRotateAnglesDelta*fRotateCoef;
         /*
         this->fXAngle += 8 * dy;
         this->fYAngle += 8 * dx;
@@ -234,7 +280,7 @@ void Surface::mouseMoveEvent(QMouseEvent *oEvent)
         this->oNewMousePosition = oEvent->pos();
         this->oOldMousePosition = this->oLastMousePosition;
 
-        this->oRotateAngles += this->oRotateAnglesDelta;
+        this->oRotateAngles += this->oRotateAnglesDelta*fRotateCoef;
         /*
         this->fXAngle += 8 * dy;
         this->fYAngle += 0;

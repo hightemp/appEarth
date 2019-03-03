@@ -9,6 +9,8 @@
 #include <QtMath>
 #include <QByteArray>
 #include <QMatrix4x4>
+#include <QOpenGLShader>
+#include <QOpenGLShaderProgram>
 
 #if defined(Q_OS_MACOS)
 #include <OpenGL/glu.h>
@@ -19,9 +21,17 @@
 
 struct Coordinate {
     Coordinate() {}
-    Coordinate(float fLatitude, float fLongitude):fLatitude(fLatitude), fLongitude(fLongitude) {}
+    Coordinate(float fLatitude, float fLongitude, QString sCityName):
+        fLatitude(fLatitude),
+        fLongitude(fLongitude),
+        sCityName(sCityName)
+    {
+
+    }
+
     float fLatitude = 0;
     float fLongitude = 0;
+    QString sCityName = "";
 };
 
 class Surface : public QOpenGLWidget
@@ -41,10 +51,16 @@ public:
 
     QVector4D fnCalculateWorldMousePosition(QPoint oPoint);
     QVector3D fnCalculateVectorAnglesToAxis(QVector4D oVector);
+
 protected:
 
     QOpenGLTexture *oEarthTexture;
     QVector<Coordinate> *oCoordinates;
+
+    QOpenGLShader *poVColorBoxShader;
+    QOpenGLShader *poFColorBoxShader;
+
+    QOpenGLShaderProgram oShaderProgram;
 
     QPoint oLastMousePosition;
     QPoint oNewMousePosition;
@@ -56,6 +72,8 @@ protected:
     bool bShowAxis = true;
     bool bShowEarth = true;
     bool bShowCities = true;
+
+    float fRotateCoef = 8.0;
 
 signals:
 
