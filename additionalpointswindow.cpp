@@ -51,9 +51,12 @@ void AdditionalPointsWindow::fnLoadCSVFile()
     oSurface->oAdditionalPointsNames->clear();
     oSurface->oAdditionalPointsCoordinates->clear();
 
+    this->oAdditionalPointsTextEdit->clear();
+
     if (oCSVFile.open(QFile::ReadOnly)) {
         while (!oCSVFile.atEnd()) {
             QByteArray oLine = oCSVFile.readLine();
+            this->oAdditionalPointsTextEdit->append(QString(oLine).remove(QChar('\n')));
 
             QList<QByteArray> oSplitedLine = oLine.split(',');
 
@@ -86,6 +89,16 @@ void AdditionalPointsWindow::fnOnSaveClick(bool bChecked)
 
     oSurface->oAdditionalPointsNames->clear();
     oSurface->oAdditionalPointsCoordinates->clear();
+
+    QFile oCSVFile("additional_points.csv");
+
+    if (oCSVFile.open(QFile::WriteOnly)) {
+        oCSVFile.write(QByteArray(this->oAdditionalPointsTextEdit->toPlainText().toUtf8()));
+    } else {
+        qDebug() << "Can't save to file additional_points.csv";
+    }
+
+    oCSVFile.close();
 
     QStringList oStringList(this->oAdditionalPointsTextEdit->toPlainText().split('\n'));
 

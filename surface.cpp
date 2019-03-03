@@ -39,6 +39,8 @@ Surface::~Surface()
     delete this->oEarthTexture;
     delete this->oCitiesCoordinates;
     delete this->oCitiesNames;
+    delete this->oAdditionalPointsCoordinates;
+    delete this->oAdditionalPointsNames;
 }
 
 void Surface::initializeGL()
@@ -158,7 +160,9 @@ void Surface::paintGL()
         gluQuadricNormals(oQuadric, GLU_SMOOTH);
         gluQuadricTexture(oQuadric, GL_TRUE);
 
-        oShaderProgram.bind();
+        if (this->bShowColorBox) {
+            oShaderProgram.bind();
+        }
 
         glColor3f(1.0, 1.0, 1.0);
         this->oEarthTexture->bind(0);
@@ -268,7 +272,7 @@ void Surface::paintGL()
             glBegin(GL_LINES);
             glColor3f(1.0, 0.0, 0.0);
             glVertex3f(1.0*fX, 1.0*fY, 1.0*fZ);
-            glVertex3f(1.01*fX, 1.01*fY, 1.01*fZ);
+            glVertex3f(1.05*fX, 1.05*fY, 1.05*fZ);
             glEnd();
 
             glBegin(GL_POINTS);
