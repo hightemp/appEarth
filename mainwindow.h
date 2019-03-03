@@ -11,6 +11,7 @@
 #include <QComboBox>
 #include <QSlider>
 #include <QLabel>
+#include <QStringListModel>
 
 #include "surface.h"
 
@@ -38,12 +39,17 @@ protected:
     QCheckBox *oShowAxisCheckBox;
     QCheckBox *oShowEarthCheckBox;
     QCheckBox *oShowCitiesCheckBox;
+    QCheckBox *oShowCityCheckBox;
+    QComboBox *oCityComboBox;
+    QStringListModel *oCityStringListModel;
 
 public slots:
     void fnOnShowMousePositionVectorsChange(bool bValue);
     void fnOnShowAxisCheckBoxChange(bool bValue);
     void fnOnShowEarthCheckBoChange(bool bValue);
     void fnOnShowCitiesCheckBoxChange(bool bValue);
+    void fnOnShowCityCheckBoxChange(bool bValue);
+    void fnOnCityComboBoxChange(int iIndex);
 };
 
 #endif // MAINWINDOW_H

@@ -21,17 +21,17 @@
 
 struct Coordinate {
     Coordinate() {}
-    Coordinate(float fLatitude, float fLongitude, QString sCityName):
+    Coordinate(float fLatitude, float fLongitude, QString *psCityName):
         fLatitude(fLatitude),
         fLongitude(fLongitude),
-        sCityName(sCityName)
+        psCityName(psCityName)
     {
 
     }
 
     float fLatitude = 0;
     float fLongitude = 0;
-    QString sCityName = "";
+    QString *psCityName;
 };
 
 class Surface : public QOpenGLWidget
@@ -54,7 +54,8 @@ public:
 
 public:
     QOpenGLTexture *oEarthTexture;
-    QVector<Coordinate> *oCoordinates;
+    QVector<Coordinate> *oCitiesCoordinates;
+    QStringList *oCitiesNames;
 
     QOpenGLShader *poVColorBoxShader;
     QOpenGLShader *poFColorBoxShader;
@@ -71,6 +72,8 @@ public:
     bool bShowAxis = true;
     bool bShowEarth = true;
     bool bShowCities = true;
+    bool bShowCity = false;
+    int iCityId = 0;
 
     float fRotateCoef = 8.0;
 

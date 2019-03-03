@@ -4,7 +4,7 @@ Surface::Surface(QWidget *parent) : QOpenGLWidget(parent)
 {
     //qDebug() << glGetString(GL_VERSION);
 
-    this->oCoordinates = new QVector<Coordinate>();
+    this->oCitiesCoordinates = new QVector<Coordinate>();
 
     QFile oCSVFile(":/main/world_cities.csv");
     if (!oCSVFile.open(QIODevice::ReadOnly)) {
@@ -12,28 +12,30 @@ Surface::Surface(QWidget *parent) : QOpenGLWidget(parent)
         return;
     }
 
-    QStringList wordList;
-
-    QByteArray line = oCSVFile.readLine();
+    QByteArray oLine = oCSVFile.readLine();
+    this->oCitiesNames = new QStringList();
 
     while (!oCSVFile.atEnd()) {
-        QByteArray line = oCSVFile.readLine();
-        QList<QByteArray> oSplitedLine = line.split(',');
+        oLine = oCSVFile.readLine();
+        QList<QByteArray> oSplitedLine = oLine.split(',');
 
-        this->oCoordinates->push_back(Coordinate(
+        this->oCitiesNames->append(QString(oSplitedLine[0]));
+
+        this->oCitiesCoordinates->push_back(Coordinate(
             oSplitedLine[2].toFloat(),
             oSplitedLine[3].toFloat(),
-            QString(oSplitedLine[0])
+            &this->oCitiesNames->last()
         ));
     }
 }
 
 Surface::~Surface()
 {
-    delete poVColorBoxShader;
-    delete poFColorBoxShader;
+    delete this->poVColorBoxShader;
+    delete this->poFColorBoxShader;
     delete this->oEarthTexture;
-    delete this->oCoordinates;
+    delete this->oCitiesCoordinates;
+    delete this->oCitiesNames;
 }
 
 void Surface::initializeGL()
@@ -174,15 +176,17 @@ void Surface::paintGL()
         glEnable(GL_POINT_SMOOTH);
         glPointSize(5.0);
 
-        for (int iIndex=0; iIndex<this->oCoordinates->length(); iIndex++) {
+        for (int iIndex=0; iIndex<this->oCitiesCoordinates->length(); iIndex++) {
             glPushMatrix();
 
             glRotatef(90, 1.0, 0.0, 0.0);
             glRotatef(90+30, 0.0, 1.0, 0.0);
 
-            float fX = cos(qDegreesToRadians(this->oCoordinates->at(iIndex).fLongitude))*cos(qDegreesToRadians(this->oCoordinates->at(iIndex).fLatitude));
-            float fY = -sin(qDegreesToRadians(this->oCoordinates->at(iIndex).fLatitude));
-            float fZ = -sin(qDegreesToRadians(this->oCoordinates->at(iIndex).fLongitude))*cos(qDegreesToRadians(this->oCoordinates->at(iIndex).fLatitude));
+            const Coordinate &oCoordinate = this->oCitiesCoordinates->at(iIndex);
+
+            float fX = cos(qDegreesToRadians(this->oCitiesCoordinates->at(iIndex).fLongitude))*cos(qDegreesToRadians(this->oCitiesCoordinates->at(iIndex).fLatitude));
+            float fY = -sin(qDegreesToRadians(this->oCitiesCoordinates->at(iIndex).fLatitude));
+            float fZ = -sin(qDegreesToRadians(this->oCitiesCoordinates->at(iIndex).fLongitude))*cos(qDegreesToRadians(this->oCitiesCoordinates->at(iIndex).fLatitude));
 
             glBegin(GL_LINES);
             glColor3f(1.0, 0.0, 0.0);
@@ -197,6 +201,42 @@ void Surface::paintGL()
 
             glPopMatrix();
         }
+
+        glDisable(GL_POINT_SMOOTH);
+        glBlendFunc(GL_NONE, GL_NONE);
+        glDisable(GL_BLEND);
+    }
+
+    if (this->bShowCity) {
+        glAlphaFunc(GL_NOTEQUAL, 0);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_POINT_SMOOTH);
+        glPointSize(5.0);
+
+        const Coordinate &oCoordinate = this->oCitiesCoordinates->at(this->iCityId);
+
+        glPushMatrix();
+
+        glRotatef(90, 1.0, 0.0, 0.0);
+        glRotatef(90+30, 0.0, 1.0, 0.0);
+
+        float fX = cos(qDegreesToRadians(oCoordinate.fLongitude))*cos(qDegreesToRadians(oCoordinate.fLatitude));
+        float fY = -sin(qDegreesToRadians(oCoordinate.fLatitude));
+        float fZ = -sin(qDegreesToRadians(oCoordinate.fLongitude))*cos(qDegreesToRadians(oCoordinate.fLatitude));
+
+        glBegin(GL_LINES);
+        glColor3f(1.0, 0.0, 0.0);
+        glVertex3f(1.0*fX, 1.0*fY, 1.0*fZ);
+        glVertex3f(1.01*fX, 1.01*fY, 1.01*fZ);
+        glEnd();
+
+        glBegin(GL_POINTS);
+        glColor4f(1.0, 0.0, 0.0, 0.5);
+        glVertex3f(fX, fY, fZ);
+        glEnd();
+
+        glPopMatrix();
 
         glDisable(GL_POINT_SMOOTH);
         glBlendFunc(GL_NONE, GL_NONE);

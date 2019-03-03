@@ -33,6 +33,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->oOptionsGroupBox->setLayout(this->oOptionsGroupBoxVBoxLayout);
 
+    this->oOptionsGroupBoxVBoxLayout->setAlignment(Qt::AlignTop);
+
     this->oShowMousePositionVectorsCheckBox = new QCheckBox();
     this->oShowMousePositionVectorsCheckBox->setText("Show mouse position vectors");
     this->oShowMousePositionVectorsCheckBox->setChecked(this->oSurface->bShowMousePositionVectors);
@@ -56,6 +58,19 @@ MainWindow::MainWindow(QWidget *parent) :
     this->oShowCitiesCheckBox->setChecked(this->oSurface->bShowCities);
     connect(this->oShowCitiesCheckBox, SIGNAL(clicked(bool)), this, SLOT(fnOnShowCitiesCheckBoxChange(bool)));
     this->oOptionsGroupBoxVBoxLayout->addWidget(this->oShowCitiesCheckBox);
+
+    this->oShowCityCheckBox = new QCheckBox();
+    this->oShowCityCheckBox->setText("Show city");
+    this->oShowCityCheckBox->setChecked(this->oSurface->bShowCity);
+    connect(this->oShowCityCheckBox, SIGNAL(clicked(bool)), this, SLOT(fnOnShowCityCheckBoxChange(bool)));
+    this->oOptionsGroupBoxVBoxLayout->addWidget(this->oShowCityCheckBox);
+
+    this->oCityComboBox = new QComboBox();
+    this->oCityStringListModel = new QStringListModel();
+    this->oCityStringListModel->setStringList(*this->oSurface->oCitiesNames);
+    this->oCityComboBox->setModel(this->oCityStringListModel);
+    connect(this->oCityComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(fnOnCityComboBoxChange(int)));
+    this->oOptionsGroupBoxVBoxLayout->addWidget(this->oCityComboBox);
 
     ui->centralWidget->setLayout(this->oMainLayout);
 }
@@ -87,5 +102,17 @@ void MainWindow::fnOnShowEarthCheckBoChange(bool bValue)
 void MainWindow::fnOnShowCitiesCheckBoxChange(bool bValue)
 {
     this->oSurface->bShowCities = bValue;
+    this->oSurface->repaint();
+}
+
+void MainWindow::fnOnShowCityCheckBoxChange(bool bValue)
+{
+    this->oSurface->bShowCity = bValue;
+    this->oSurface->repaint();
+}
+
+void MainWindow::fnOnCityComboBoxChange(int iIndex)
+{
+    this->oSurface->iCityId = iIndex;
     this->oSurface->repaint();
 }
