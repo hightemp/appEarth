@@ -184,9 +184,9 @@ void Surface::paintGL()
 
             const Coordinate &oCoordinate = this->oCitiesCoordinates->at(iIndex);
 
-            float fX = cos(qDegreesToRadians(this->oCitiesCoordinates->at(iIndex).fLongitude))*cos(qDegreesToRadians(this->oCitiesCoordinates->at(iIndex).fLatitude));
-            float fY = -sin(qDegreesToRadians(this->oCitiesCoordinates->at(iIndex).fLatitude));
-            float fZ = -sin(qDegreesToRadians(this->oCitiesCoordinates->at(iIndex).fLongitude))*cos(qDegreesToRadians(this->oCitiesCoordinates->at(iIndex).fLatitude));
+            float fX = cos(qDegreesToRadians(oCoordinate.fLongitude))*cos(qDegreesToRadians(oCoordinate.fLatitude));
+            float fY = -sin(qDegreesToRadians(oCoordinate.fLatitude));
+            float fZ = -sin(qDegreesToRadians(oCoordinate.fLongitude))*cos(qDegreesToRadians(oCoordinate.fLatitude));
 
             glBegin(GL_LINES);
             glColor3f(1.0, 0.0, 0.0);
@@ -214,21 +214,21 @@ void Surface::paintGL()
         glEnable(GL_POINT_SMOOTH);
         glPointSize(5.0);
 
-        const Coordinate &oCoordinate = this->oCitiesCoordinates->at(this->iCityId);
+        const Coordinate &oCityCoordinate = this->oCitiesCoordinates->at(this->iCityId);
 
         glPushMatrix();
 
         glRotatef(90, 1.0, 0.0, 0.0);
         glRotatef(90+30, 0.0, 1.0, 0.0);
 
-        float fX = cos(qDegreesToRadians(oCoordinate.fLongitude))*cos(qDegreesToRadians(oCoordinate.fLatitude));
-        float fY = -sin(qDegreesToRadians(oCoordinate.fLatitude));
-        float fZ = -sin(qDegreesToRadians(oCoordinate.fLongitude))*cos(qDegreesToRadians(oCoordinate.fLatitude));
+        float fX = cos(qDegreesToRadians(oCityCoordinate.fLongitude))*cos(qDegreesToRadians(oCityCoordinate.fLatitude));
+        float fY = -sin(qDegreesToRadians(oCityCoordinate.fLatitude));
+        float fZ = -sin(qDegreesToRadians(oCityCoordinate.fLongitude))*cos(qDegreesToRadians(oCityCoordinate.fLatitude));
 
         glBegin(GL_LINES);
         glColor3f(1.0, 0.0, 0.0);
         glVertex3f(1.0*fX, 1.0*fY, 1.0*fZ);
-        glVertex3f(1.01*fX, 1.01*fY, 1.01*fZ);
+        glVertex3f(1.05*fX, 1.05*fY, 1.05*fZ);
         glEnd();
 
         glBegin(GL_POINTS);
