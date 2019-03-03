@@ -12,6 +12,7 @@
 #include <QSlider>
 #include <QLabel>
 #include <QStringListModel>
+#include "additionalpointswindow.h"
 
 #include "surface.h"
 
@@ -27,9 +28,10 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-protected:
-    Surface *oSurface;
+public:
     Ui::MainWindow *ui;
+
+    Surface *oSurface;
 
     QHBoxLayout *oMainLayout;
     QVBoxLayout *oRightVBoxLayout;
@@ -42,6 +44,7 @@ protected:
     QCheckBox *oShowCityCheckBox;
     QComboBox *oCityComboBox;
     QStringListModel *oCityStringListModel;
+    AdditionalPointsWindow *oAdditionalPointsWindow;
 
 public slots:
     void fnOnShowMousePositionVectorsChange(bool bValue);

@@ -72,6 +72,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this->oCityComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(fnOnCityComboBoxChange(int)));
     this->oOptionsGroupBoxVBoxLayout->addWidget(this->oCityComboBox);
 
+    this->oAdditionalPointsWindow = new AdditionalPointsWindow();
+
     ui->centralWidget->setLayout(this->oMainLayout);
 }
 

@@ -27,11 +27,13 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    surface.cpp
+    surface.cpp \
+    additionalpointswindow.cpp
 
 HEADERS += \
         mainwindow.h \
-    surface.h
+    surface.h \
+    additionalpointswindow.h
 
 FORMS += \
         mainwindow.ui
