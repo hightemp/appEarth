@@ -56,6 +56,8 @@ public:
     QOpenGLTexture *oEarthTexture;
     QVector<Coordinate> *oCitiesCoordinates;
     QStringList *oCitiesNames;
+    QVector<Coordinate> *oAdditionalPointsCoordinates;
+    QStringList *oAdditionalPointsNames;
 
     QOpenGLShader *poVColorBoxShader;
     QOpenGLShader *poFColorBoxShader;
@@ -74,6 +76,7 @@ public:
     bool bShowCities = true;
     bool bShowCity = false;
     int iCityId = 0;
+    bool bShowAdditionalPoints = false;
 
     float fRotateCoef = 8.0;
 

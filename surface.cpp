@@ -5,6 +5,10 @@ Surface::Surface(QWidget *parent) : QOpenGLWidget(parent)
     //qDebug() << glGetString(GL_VERSION);
 
     this->oCitiesCoordinates = new QVector<Coordinate>();
+    this->oAdditionalPointsCoordinates = new QVector<Coordinate>();
+
+    this->oCitiesNames = new QStringList();
+    this->oAdditionalPointsNames = new QStringList();
 
     QFile oCSVFile(":/main/world_cities.csv");
     if (!oCSVFile.open(QIODevice::ReadOnly)) {
@@ -13,7 +17,6 @@ Surface::Surface(QWidget *parent) : QOpenGLWidget(parent)
     }
 
     QByteArray oLine = oCSVFile.readLine();
-    this->oCitiesNames = new QStringList();
 
     while (!oCSVFile.atEnd()) {
         oLine = oCSVFile.readLine();
@@ -237,6 +240,44 @@ void Surface::paintGL()
         glEnd();
 
         glPopMatrix();
+
+        glDisable(GL_POINT_SMOOTH);
+        glBlendFunc(GL_NONE, GL_NONE);
+        glDisable(GL_BLEND);
+    }
+
+    if (this->bShowAdditionalPoints) {
+        glAlphaFunc(GL_NOTEQUAL, 0);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_POINT_SMOOTH);
+        glPointSize(5.0);
+
+        for (int iIndex=0; iIndex<this->oAdditionalPointsCoordinates->length(); iIndex++) {
+            glPushMatrix();
+
+            glRotatef(90, 1.0, 0.0, 0.0);
+            glRotatef(90+30, 0.0, 1.0, 0.0);
+
+            const Coordinate &oCoordinate = this->oAdditionalPointsCoordinates->at(iIndex);
+
+            float fX = cos(qDegreesToRadians(oCoordinate.fLongitude))*cos(qDegreesToRadians(oCoordinate.fLatitude));
+            float fY = -sin(qDegreesToRadians(oCoordinate.fLatitude));
+            float fZ = -sin(qDegreesToRadians(oCoordinate.fLongitude))*cos(qDegreesToRadians(oCoordinate.fLatitude));
+
+            glBegin(GL_LINES);
+            glColor3f(1.0, 0.0, 0.0);
+            glVertex3f(1.0*fX, 1.0*fY, 1.0*fZ);
+            glVertex3f(1.01*fX, 1.01*fY, 1.01*fZ);
+            glEnd();
+
+            glBegin(GL_POINTS);
+            glColor4f(1.0, 0.0, 0.0, 0.5);
+            glVertex3f(fX, fY, fZ);
+            glEnd();
+
+            glPopMatrix();
+        }
 
         glDisable(GL_POINT_SMOOTH);
         glBlendFunc(GL_NONE, GL_NONE);

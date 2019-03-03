@@ -72,7 +72,18 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this->oCityComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(fnOnCityComboBoxChange(int)));
     this->oOptionsGroupBoxVBoxLayout->addWidget(this->oCityComboBox);
 
-    this->oAdditionalPointsWindow = new AdditionalPointsWindow();
+    this->oShowAdditionalPointsCheckBox = new QCheckBox();
+    this->oShowAdditionalPointsCheckBox->setText("Show additional points");
+    this->oShowAdditionalPointsCheckBox->setChecked(this->oSurface->bShowAdditionalPoints);
+    connect(this->oShowAdditionalPointsCheckBox, SIGNAL(clicked(bool)), this, SLOT(fnOnShowAdditionalPointsChange(bool)));
+    this->oOptionsGroupBoxVBoxLayout->addWidget(this->oShowAdditionalPointsCheckBox);
+
+    this->oAdditionalPointsWindow = new AdditionalPointsWindow(this);
+
+    this->oShowoAdditionalPointsWindowButton = new QPushButton();
+    this->oShowoAdditionalPointsWindowButton->setText("Additional points");
+    connect(this->oShowoAdditionalPointsWindowButton, SIGNAL(clicked(bool)), this, SLOT(fnOnShowoAdditionalPointsWindowButtonClick(bool)));
+    this->oOptionsGroupBoxVBoxLayout->addWidget(this->oShowoAdditionalPointsWindowButton);
 
     ui->centralWidget->setLayout(this->oMainLayout);
 }
@@ -116,5 +127,16 @@ void MainWindow::fnOnShowCityCheckBoxChange(bool bValue)
 void MainWindow::fnOnCityComboBoxChange(int iIndex)
 {
     this->oSurface->iCityId = iIndex;
+    this->oSurface->repaint();
+}
+
+void MainWindow::fnOnShowoAdditionalPointsWindowButtonClick(bool bChecked)
+{
+    this->oAdditionalPointsWindow->show();
+}
+
+void MainWindow::fnOnShowAdditionalPointsChange(bool bValue)
+{
+    this->oSurface->bShowAdditionalPoints = bValue;
     this->oSurface->repaint();
 }

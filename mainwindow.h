@@ -12,9 +12,11 @@
 #include <QSlider>
 #include <QLabel>
 #include <QStringListModel>
+#include <QPushButton>
 #include "additionalpointswindow.h"
-
 #include "surface.h"
+
+class AdditionalPointsWindow;
 
 namespace Ui {
 class MainWindow;
@@ -44,7 +46,9 @@ public:
     QCheckBox *oShowCityCheckBox;
     QComboBox *oCityComboBox;
     QStringListModel *oCityStringListModel;
+    QCheckBox *oShowAdditionalPointsCheckBox;
     AdditionalPointsWindow *oAdditionalPointsWindow;
+    QPushButton *oShowoAdditionalPointsWindowButton;
 
 public slots:
     void fnOnShowMousePositionVectorsChange(bool bValue);
@@ -53,6 +57,8 @@ public slots:
     void fnOnShowCitiesCheckBoxChange(bool bValue);
     void fnOnShowCityCheckBoxChange(bool bValue);
     void fnOnCityComboBoxChange(int iIndex);
+    void fnOnShowoAdditionalPointsWindowButtonClick(bool bChecked = false);
+    void fnOnShowAdditionalPointsChange(bool bValue);
 };
 
 #endif // MAINWINDOW_H
