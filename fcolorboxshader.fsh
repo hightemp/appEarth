@@ -30,14 +30,14 @@ float fnVectorPlaneDistanse(vec3 v3Vertex, vec3 v3PlanePoint, vec3 v3PlaneNormal
 
 vec3 fnGetColorByPosition()
 {
-    vec3 v3_h_h_h = (-1.0*vec4(1.0, 1.0, 1.0, 0.0)*m4ModelViewProjectionMatrix).xyz;
+    vec3 v3_h_h_h = (vec4(1.0, 1.0, 1.0, 0.0)*m4ModelViewProjectionMatrix).xyz;
     vec3 v3_h_h_l = vec3(1.0, 1.0, -1.0);
     vec3 v3_l_h_l = vec3(-1.0, 1.0, -1.0);
     vec3 v3_l_h_h = vec3(-1.0, 1.0, 1.0);
 
     vec3 v3_h_l_h = vec3(1.0, -1.0, 1.0);
     vec3 v3_h_l_l = vec3(1.0, -1.0, -1.0);
-    vec3 v3_l_l_l = (-1.0*vec4(-1.0, -1.0, -1.0, 0.0)*m4ModelViewProjectionMatrix).xyz;
+    vec3 v3_l_l_l = (vec4(-1.0, -1.0, -1.0, 0.0)*m4ModelViewProjectionMatrix).xyz;
     vec3 v3_l_l_h = vec3(-1.0, -1.0, 1.0);
 
     vec3 v3Vertex = v4Vertex.xyz;
