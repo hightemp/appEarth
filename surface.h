@@ -41,6 +41,7 @@ struct Coordinate {
 class Surface : public QOpenGLWidget
 {
     Q_OBJECT
+
 public:
     explicit Surface(QWidget *parent = nullptr);
     ~Surface();
