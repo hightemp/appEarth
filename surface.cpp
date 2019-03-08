@@ -181,7 +181,19 @@ void Surface::paintGL()
         glColor3f(1.0, 1.0, 1.0);
         this->oEarthTexture->bind(0);
 
-        oShaderProgram.setUniformValue("texture", 0);
+        GLfloat adProjection[16];
+        glGetFloatv(GL_PROJECTION_MATRIX, adProjection);
+        QMatrix4x4 oProjection(adProjection);
+
+        GLfloat adModelView[16];
+        glGetFloatv(GL_MODELVIEW_MATRIX, adModelView);
+        QMatrix4x4 oModelView(adModelView);
+
+        oShaderProgram.setUniformValue("s2DTexture", 0);
+        oShaderProgram.setUniformValue("bShowCenters", this->bShowCenters);
+        oShaderProgram.setUniformValue("fCentersRadius", 0.01f);
+        oShaderProgram.setUniformValue("m4Projection", oProjection);
+        oShaderProgram.setUniformValue("m4ModelView", oModelView);
 
         gluSphere(oQuadric, 1.0, 360, 360);
 
@@ -253,7 +265,7 @@ void Surface::paintGL()
         float fZ = -sin(qDegreesToRadians(oCityCoordinate.fLongitude))*cos(qDegreesToRadians(oCityCoordinate.fLatitude));
 
         glBegin(GL_LINES);
-        glColor3f(1.0, 0.0, 0.0);
+        glColor4f(1.0, 0.0, 0.0, 0.5);
         glVertex3f(1.0*fX, 1.0*fY, 1.0*fZ);
         glVertex3f(1.05*fX, 1.05*fY, 1.05*fZ);
         glEnd();

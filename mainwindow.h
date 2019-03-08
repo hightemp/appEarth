@@ -42,6 +42,7 @@ public:
     QCheckBox *oShowMousePositionVectorsCheckBox;
     QCheckBox *oShowAxisCheckBox;
     QCheckBox *oShowEarthCheckBox;
+    QCheckBox *oShowCentersCheckBox;
     QCheckBox *oShowColorBoxCheckBox;
     QCheckBox *oShowCitiesCheckBox;
     QCheckBox *oShowCityCheckBox;
@@ -55,6 +56,7 @@ public slots:
     void fnOnShowMousePositionVectorsChange(bool bValue);
     void fnOnShowAxisCheckBoxChange(bool bValue);
     void fnOnShowEarthCheckBoChange(bool bValue);
+    void fnOnShowCentersCheckBoChange(bool bValue);
     void fnOnShowColorBoxCheckBoChange(bool bValue);
     void fnOnShowCitiesCheckBoxChange(bool bValue);
     void fnOnShowCityCheckBoxChange(bool bValue);

@@ -78,6 +78,7 @@ public:
     bool bShowMousePositionVectors = false;
     bool bShowAxis = true;
     bool bShowEarth = true;
+    bool bShowCenters = true;
     bool bShowColorBox = true;
     bool bShowCities = true;
     bool bShowCity = false;

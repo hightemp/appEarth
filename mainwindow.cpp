@@ -53,6 +53,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this->oShowEarthCheckBox, SIGNAL(clicked(bool)), this, SLOT(fnOnShowEarthCheckBoChange(bool)));
     this->oOptionsGroupBoxVBoxLayout->addWidget(this->oShowEarthCheckBox);
 
+    this->oShowCentersCheckBox = new QCheckBox();
+    this->oShowCentersCheckBox->setText("Show centers");
+    this->oShowCentersCheckBox->setChecked(this->oSurface->bShowCenters);
+    connect(this->oShowCentersCheckBox, SIGNAL(clicked(bool)), this, SLOT(fnOnShowCentersCheckBoChange(bool)));
+    this->oOptionsGroupBoxVBoxLayout->addWidget(this->oShowCentersCheckBox);
+
     this->oShowColorBoxCheckBox = new QCheckBox();
     this->oShowColorBoxCheckBox->setText("Show color box");
     this->oShowColorBoxCheckBox->setChecked(this->oSurface->bShowColorBox);
@@ -115,6 +121,12 @@ void MainWindow::fnOnShowAxisCheckBoxChange(bool bValue)
 void MainWindow::fnOnShowEarthCheckBoChange(bool bValue)
 {
     this->oSurface->bShowEarth = bValue;
+    this->oSurface->repaint();
+}
+
+void MainWindow::fnOnShowCentersCheckBoChange(bool bValue)
+{
+    this->oSurface->bShowCenters = bValue;
     this->oSurface->repaint();
 }
 

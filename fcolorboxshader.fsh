@@ -1,6 +1,11 @@
 uniform sampler2D s2DTexture;
+uniform bool bShowCenters;
+uniform float fCentersRadius;
+uniform lowp mat4 m4Projection;
+uniform lowp mat4 m4ModelView;
+
 varying highp vec4 v4Vertex;
-varying highp mat4 m4ModelViewProjectionMatrix;
+highp mat4 m4ModelViewProjectionMatrix = m4Projection*m4ModelView;
 
 float random()
 {
@@ -42,12 +47,19 @@ vec3 fnGetColorByPosition()
 
     vec3 v3Vertex = v4Vertex.xyz;
 
-    float fD_p_x = fnVectorPlaneDistanse(v3Vertex, v3_h_h_h, (vec4(1.0, 0.0, 0.0, 0.0)*m4ModelViewProjectionMatrix).xyz);
-    float fD_n_x = fnVectorPlaneDistanse(v3Vertex, v3_l_l_l, (vec4(-1.0, 0.0, 0.0, 0.0)*m4ModelViewProjectionMatrix).xyz);
-    float fD_p_y = fnVectorPlaneDistanse(v3Vertex, v3_h_h_h, (vec4(0.0, 1.0, 0.0, 0.0)*m4ModelViewProjectionMatrix).xyz);
-    float fD_n_y = fnVectorPlaneDistanse(v3Vertex, v3_l_l_l, (vec4(0.0, -1.0, 0.0, 0.0)*m4ModelViewProjectionMatrix).xyz);
-    float fD_p_z = fnVectorPlaneDistanse(v3Vertex, v3_h_h_h, (vec4(0.0, 0.0, 1.0, 0.0)*m4ModelViewProjectionMatrix).xyz);
-    float fD_n_z = fnVectorPlaneDistanse(v3Vertex, v3_l_l_l, (vec4(0.0, 0.0, -1.0, 0.0)*m4ModelViewProjectionMatrix).xyz);
+    vec3 v3_normal_p_0_0 = (vec4(1.0, 0.0, 0.0, 0.0)*m4ModelViewProjectionMatrix).xyz;
+    vec3 v3_normal_n_0_0 = (vec4(-1.0, 0.0, 0.0, 0.0)*m4ModelViewProjectionMatrix).xyz;
+    vec3 v3_normal_0_p_0 = (vec4(0.0, 1.0, 0.0, 0.0)*m4ModelViewProjectionMatrix).xyz;
+    vec3 v3_normal_0_n_0 = (vec4(0.0, -1.0, 0.0, 0.0)*m4ModelViewProjectionMatrix).xyz;
+    vec3 v3_normal_0_0_p = (vec4(0.0, 0.0, 1.0, 0.0)*m4ModelViewProjectionMatrix).xyz;
+    vec3 v3_normal_0_0_n = (vec4(0.0, 0.0, -1.0, 0.0)*m4ModelViewProjectionMatrix).xyz;
+
+    float fD_p_x = fnVectorPlaneDistanse(v3Vertex, v3_h_h_h, v3_normal_p_0_0);
+    float fD_n_x = fnVectorPlaneDistanse(v3Vertex, v3_l_l_l, v3_normal_n_0_0);
+    float fD_p_y = fnVectorPlaneDistanse(v3Vertex, v3_h_h_h, v3_normal_0_p_0);
+    float fD_n_y = fnVectorPlaneDistanse(v3Vertex, v3_l_l_l, v3_normal_0_n_0);
+    float fD_p_z = fnVectorPlaneDistanse(v3Vertex, v3_h_h_h, v3_normal_0_0_p);
+    float fD_n_z = fnVectorPlaneDistanse(v3Vertex, v3_l_l_l, v3_normal_0_0_n);
 
     float fMinD;
 
@@ -57,6 +69,26 @@ vec3 fnGetColorByPosition()
     fMinD = min(fMinD, fD_p_z);
     fMinD = min(fMinD, fD_n_z);
 
+    if (bShowCenters) {
+        if (distance(normalize(v3Vertex), v3_normal_0_0_n)<fCentersRadius) {
+            return vec3(1.0, 0.0, 0.0);
+        }
+        if (distance(normalize(v3Vertex), v3_normal_0_0_p)<fCentersRadius) {
+            return vec3(1.0, 0.0, 0.0);
+        }
+        if (distance(normalize(v3Vertex), v3_normal_0_p_0)<fCentersRadius) {
+            return vec3(1.0, 1.0, 0.0);
+        }
+        if (distance(normalize(v3Vertex), v3_normal_0_n_0)<fCentersRadius) {
+            return vec3(1.0, 0.0, 0.0);
+        }
+        if (distance(normalize(v3Vertex), v3_normal_p_0_0)<fCentersRadius) {
+            return vec3(1.0, 0.0, 0.0);
+        }
+        if (distance(normalize(v3Vertex), v3_normal_n_0_0)<fCentersRadius) {
+            return vec3(1.0, 0.0, 0.0);
+        }
+    }
     if (fMinD==fD_p_x) {
         return vec3(0.0, 1.0, 0.0);
     }
