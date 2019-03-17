@@ -24,6 +24,7 @@ public:
     QVBoxLayout *oMainLayout;
     QGroupBox *oGroupBox;
     QVBoxLayout *oGroupBoxLayout;
+    QLabel *oCommentLabel;
     QTextEdit *oAdditionalPointsTextEdit;
     QHBoxLayout *oBottomLayout;
     QPushButton *oCancelButton;
@@ -32,6 +33,9 @@ public:
 public slots:
     void fnOnCancelClick(bool bChecked=false);
     void fnOnSaveClick(bool bChecked=false);
+
+signals:
+    void fnUpdatePoints(QStringList *oAdditionalPointsNames);
 };
 
 #endif // ADDITIONALPOINTSWINDOW_H

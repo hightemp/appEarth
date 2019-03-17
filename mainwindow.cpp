@@ -53,6 +53,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this->oShowEarthCheckBox, SIGNAL(clicked(bool)), this, SLOT(fnOnShowEarthCheckBoChange(bool)));
     this->oOptionsGroupBoxVBoxLayout->addWidget(this->oShowEarthCheckBox);
 
+    this->oShowPoliticalEarthMapCheckBox = new QCheckBox();
+    this->oShowPoliticalEarthMapCheckBox->setText("Show political map");
+    this->oShowPoliticalEarthMapCheckBox->setChecked(this->oSurface->bShowPoliticalEarthMap);
+    connect(this->oShowPoliticalEarthMapCheckBox, SIGNAL(clicked(bool)), this, SLOT(fnOnShowPoliticalEarthMapCheckBoChange(bool)));
+    this->oOptionsGroupBoxVBoxLayout->addWidget(this->oShowPoliticalEarthMapCheckBox);
+
     this->oShowCentersCheckBox = new QCheckBox();
     this->oShowCentersCheckBox->setText("Show centers");
     this->oShowCentersCheckBox->setChecked(this->oSurface->bShowCenters);
@@ -66,23 +72,39 @@ MainWindow::MainWindow(QWidget *parent) :
     this->oOptionsGroupBoxVBoxLayout->addWidget(this->oShowColorBoxCheckBox);
 
     this->oShowCitiesCheckBox = new QCheckBox();
-    this->oShowCitiesCheckBox->setText("Show cities");
+    this->oShowCitiesCheckBox->setText("Show all cities");
     this->oShowCitiesCheckBox->setChecked(this->oSurface->bShowCities);
     connect(this->oShowCitiesCheckBox, SIGNAL(clicked(bool)), this, SLOT(fnOnShowCitiesCheckBoxChange(bool)));
     this->oOptionsGroupBoxVBoxLayout->addWidget(this->oShowCitiesCheckBox);
 
     this->oShowCityCheckBox = new QCheckBox();
-    this->oShowCityCheckBox->setText("Show city");
+    this->oShowCityCheckBox->setText("Show cities");
     this->oShowCityCheckBox->setChecked(this->oSurface->bShowCity);
     connect(this->oShowCityCheckBox, SIGNAL(clicked(bool)), this, SLOT(fnOnShowCityCheckBoxChange(bool)));
     this->oOptionsGroupBoxVBoxLayout->addWidget(this->oShowCityCheckBox);
 
-    this->oCityComboBox = new QComboBox();
-    this->oCityStringListModel = new QStringListModel();
-    this->oCityStringListModel->setStringList(*this->oSurface->oCitiesNames);
-    this->oCityComboBox->setModel(this->oCityStringListModel);
-    connect(this->oCityComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(fnOnCityComboBoxChange(int)));
-    this->oOptionsGroupBoxVBoxLayout->addWidget(this->oCityComboBox);
+    this->oCitiesFilterLineEdit = new QLineEdit();
+    this->oOptionsGroupBoxVBoxLayout->addWidget(this->oCitiesFilterLineEdit);
+
+    this->oCitiesList = new QListView();
+    this->oCitiesListModel = new CheckableStringListModel(this->oSurface->oCitiesCoordinates, *this->oSurface->oCitiesNames);
+    connect(
+        this->oCitiesListModel,
+        SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &, const QVector<int> &)),
+        this,
+        SLOT(fnOnListModelDataChanged(const QModelIndex &, const QModelIndex &, const QVector<int> &))
+    );
+    this->oCitiesListProxyModel = new QSortFilterProxyModel();
+    this->oCitiesListProxyModel->setSourceModel(this->oCitiesListModel);
+    this->oCitiesList->setModel(this->oCitiesListProxyModel);
+    this->oOptionsGroupBoxVBoxLayout->addWidget(this->oCitiesList);
+
+    connect(
+        oCitiesFilterLineEdit,
+        SIGNAL(textChanged(QString)),
+        oCitiesListProxyModel,
+        SLOT(setFilterFixedString(QString))
+    );
 
     this->oShowAdditionalPointsCheckBox = new QCheckBox();
     this->oShowAdditionalPointsCheckBox->setText("Show additional points");
@@ -91,6 +113,32 @@ MainWindow::MainWindow(QWidget *parent) :
     this->oOptionsGroupBoxVBoxLayout->addWidget(this->oShowAdditionalPointsCheckBox);
 
     this->oAdditionalPointsWindow = new AdditionalPointsWindow(this);
+    connect(this->oAdditionalPointsWindow, SIGNAL(fnUpdatePoints(QStringList *)), this, SLOT(fnUpdateAdditionalPointsList(QStringList *)));
+
+    this->oAdditionalPointsFilterLineEdit = new QLineEdit();
+    this->oOptionsGroupBoxVBoxLayout->addWidget(this->oAdditionalPointsFilterLineEdit);
+
+    this->oAdditionalPointsList = new QListView();
+    this->oAdditionalPointsListModel = new CheckableStringListModel(this->oSurface->oAdditionalPointsCoordinates, *this->oSurface->oAdditionalPointsNames);
+    connect(
+        this->oAdditionalPointsListModel,
+        SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &, const QVector<int> &)),
+        this,
+        SLOT(fnOnListModelDataChanged(const QModelIndex &, const QModelIndex &, const QVector<int> &))
+    );
+    this->oAdditionalPointsListProxyModel = new QSortFilterProxyModel();
+    this->oAdditionalPointsListProxyModel->setSourceModel(this->oAdditionalPointsListModel);
+    this->oAdditionalPointsList->setModel(this->oAdditionalPointsListProxyModel);
+    this->oOptionsGroupBoxVBoxLayout->addWidget(this->oAdditionalPointsList);
+
+    connect(
+        oAdditionalPointsFilterLineEdit,
+        SIGNAL(textChanged(QString)),
+        oAdditionalPointsListProxyModel,
+        SLOT(setFilterFixedString(QString))
+    );
+
+    this->oAdditionalPointsWindow->fnLoadCSVFile();
 
     this->oShowoAdditionalPointsWindowButton = new QPushButton();
     this->oShowoAdditionalPointsWindowButton->setText("Additional points");
@@ -104,6 +152,18 @@ MainWindow::~MainWindow()
 {
     delete this->oSurface;
     delete ui;
+}
+
+void MainWindow::fnOnListModelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
+{
+    qDebug() << __FUNCTION__;
+
+    this->oSurface->repaint();
+}
+
+void MainWindow::fnUpdateAdditionalPointsList(QStringList *oAdditionalPointsNames)
+{
+    this->oAdditionalPointsListModel->setStringList(*oAdditionalPointsNames);
 }
 
 void MainWindow::fnOnShowMousePositionVectorsChange(bool bValue)
@@ -121,6 +181,12 @@ void MainWindow::fnOnShowAxisCheckBoxChange(bool bValue)
 void MainWindow::fnOnShowEarthCheckBoChange(bool bValue)
 {
     this->oSurface->bShowEarth = bValue;
+    this->oSurface->repaint();
+}
+
+void MainWindow::fnOnShowPoliticalEarthMapCheckBoChange(bool bValue)
+{
+    this->oSurface->bShowPoliticalEarthMap = bValue;
     this->oSurface->repaint();
 }
 

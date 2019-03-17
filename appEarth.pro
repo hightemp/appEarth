@@ -28,12 +28,14 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     surface.cpp \
-    additionalpointswindow.cpp
+    additionalpointswindow.cpp \
+    checkablestringlistmodel.cpp
 
 HEADERS += \
         mainwindow.h \
     surface.h \
-    additionalpointswindow.h
+    additionalpointswindow.h \
+    checkablestringlistmodel.h
 
 FORMS += \
         mainwindow.ui

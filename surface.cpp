@@ -27,6 +27,11 @@ Surface::Surface(QWidget *parent) : QOpenGLWidget(parent)
             oSplitedLine[3].toFloat(),
             &this->oCitiesNames->last()
         ));
+
+        Coordinate &oC =  this->oCitiesCoordinates->last();
+        oC.fX = cos(qDegreesToRadians(oC.fLongitude))*cos(qDegreesToRadians(oC.fLatitude));
+        oC.fY = -sin(qDegreesToRadians(oC.fLatitude));
+        oC.fZ = -sin(qDegreesToRadians(oC.fLongitude))*cos(qDegreesToRadians(oC.fLatitude));
     }
 }
 
@@ -67,6 +72,9 @@ void Surface::initializeGL()
 
     QImage oEarthImage = QImage(QString(":/main/earth.jpg"));
     this->oEarthTexture = new QOpenGLTexture(oEarthImage);
+
+    QImage oEarthPoliticalImage = QImage(QString(":/main/earth_political.jpg"));
+    this->oEarthPoliticalTexture = new QOpenGLTexture(oEarthPoliticalImage);
 
     poVColorBoxShader = new QOpenGLShader(QOpenGLShader::Vertex);
     poFColorBoxShader = new QOpenGLShader(QOpenGLShader::Fragment);
@@ -180,6 +188,7 @@ void Surface::paintGL()
 
         glColor3f(1.0, 1.0, 1.0);
         this->oEarthTexture->bind(0);
+        this->oEarthPoliticalTexture->bind(1);
 
         GLfloat adProjection[16];
         glGetFloatv(GL_PROJECTION_MATRIX, adProjection);
@@ -189,7 +198,9 @@ void Surface::paintGL()
         glGetFloatv(GL_MODELVIEW_MATRIX, adModelView);
         QMatrix4x4 oModelView(adModelView);
 
-        oShaderProgram.setUniformValue("s2DTexture", 0);
+        oShaderProgram.setUniformValue("s2DEarthTexture", 0);
+        oShaderProgram.setUniformValue("s2DEarthPoliticalTexture", 1);
+        oShaderProgram.setUniformValue("bShowPoliticalEarthMap", this->bShowPoliticalEarthMap);
         oShaderProgram.setUniformValue("bShowCenters", this->bShowCenters);
         oShaderProgram.setUniformValue("fCentersRadius", 0.01f);
         oShaderProgram.setUniformValue("m4Projection", oProjection);
@@ -218,10 +229,6 @@ void Surface::paintGL()
 
             const Coordinate &oCoordinate = this->oCitiesCoordinates->at(iIndex);
 
-            float fX = cos(qDegreesToRadians(oCoordinate.fLongitude))*cos(qDegreesToRadians(oCoordinate.fLatitude));
-            float fY = -sin(qDegreesToRadians(oCoordinate.fLatitude));
-            float fZ = -sin(qDegreesToRadians(oCoordinate.fLongitude))*cos(qDegreesToRadians(oCoordinate.fLatitude));
-
             /*
             glBegin(GL_LINES);
             glColor3f(1.0, 0.0, 0.0);
@@ -231,8 +238,8 @@ void Surface::paintGL()
             */
 
             glBegin(GL_POINTS);
-            glColor4f(1.0, 0.0, 0.0, 0.5);
-            glVertex3f(fX, fY, fZ);
+            glColor4f(oCoordinate.fColorR, oCoordinate.fColorG, oCoordinate.fColorB, 0.5);
+            glVertex3f(oCoordinate.fX, oCoordinate.fY, oCoordinate.fZ);
             glEnd();
 
             glPopMatrix();
@@ -253,29 +260,31 @@ void Surface::paintGL()
         glPointSize(5.0);
         glLineWidth(5.0);
 
-        const Coordinate &oCityCoordinate = this->oCitiesCoordinates->at(this->iCityId);
+        for (int iIndex=0; iIndex<this->oCitiesCoordinates->length(); iIndex++) {
+            const Coordinate &oCoordinate = this->oCitiesCoordinates->at(iIndex);
 
-        glPushMatrix();
+            if (!oCoordinate.bShow) {
+                continue;
+            }
 
-        glRotatef(90, 1.0, 0.0, 0.0);
-        glRotatef(90+30, 0.0, 1.0, 0.0);
+            glPushMatrix();
 
-        float fX = cos(qDegreesToRadians(oCityCoordinate.fLongitude))*cos(qDegreesToRadians(oCityCoordinate.fLatitude));
-        float fY = -sin(qDegreesToRadians(oCityCoordinate.fLatitude));
-        float fZ = -sin(qDegreesToRadians(oCityCoordinate.fLongitude))*cos(qDegreesToRadians(oCityCoordinate.fLatitude));
+            glRotatef(90, 1.0, 0.0, 0.0);
+            glRotatef(90+30, 0.0, 1.0, 0.0);
 
-        glBegin(GL_LINES);
-        glColor4f(1.0, 0.0, 0.0, 0.5);
-        glVertex3f(1.0*fX, 1.0*fY, 1.0*fZ);
-        glVertex3f(1.05*fX, 1.05*fY, 1.05*fZ);
-        glEnd();
+            glBegin(GL_LINES);
+            glColor4f(oCoordinate.fColorR, oCoordinate.fColorG, oCoordinate.fColorB, 0.5);
+            glVertex3f(1.0*oCoordinate.fX, 1.0*oCoordinate.fY, 1.0*oCoordinate.fZ);
+            glVertex3f(1.05*oCoordinate.fX, 1.05*oCoordinate.fY, 1.05*oCoordinate.fZ);
+            glEnd();
 
-        glBegin(GL_POINTS);
-        glColor4f(1.0, 0.0, 0.0, 0.5);
-        glVertex3f(fX, fY, fZ);
-        glEnd();
+            glBegin(GL_POINTS);
+            glColor4f(oCoordinate.fColorR, oCoordinate.fColorG, oCoordinate.fColorB, 0.5);
+            glVertex3f(oCoordinate.fX, oCoordinate.fY, oCoordinate.fZ);
+            glEnd();
 
-        glPopMatrix();
+            glPopMatrix();
+        }
 
         glPointSize(1.0);
         glLineWidth(1.0);
@@ -293,26 +302,28 @@ void Surface::paintGL()
         glLineWidth(5.0);
 
         for (int iIndex=0; iIndex<this->oAdditionalPointsCoordinates->length(); iIndex++) {
+            const Coordinate &oCoordinate = this->oAdditionalPointsCoordinates->at(iIndex);
+
+            qDebug() << oCoordinate.bShow << 1.0*oCoordinate.fX << 1.0*oCoordinate.fY << 1.0*oCoordinate.fZ;
+
+            if (!oCoordinate.bShow) {
+                continue;
+            }
+
             glPushMatrix();
 
             glRotatef(90, 1.0, 0.0, 0.0);
             glRotatef(90+30, 0.0, 1.0, 0.0);
 
-            const Coordinate &oCoordinate = this->oAdditionalPointsCoordinates->at(iIndex);
-
-            float fX = cos(qDegreesToRadians(oCoordinate.fLongitude))*cos(qDegreesToRadians(oCoordinate.fLatitude));
-            float fY = -sin(qDegreesToRadians(oCoordinate.fLatitude));
-            float fZ = -sin(qDegreesToRadians(oCoordinate.fLongitude))*cos(qDegreesToRadians(oCoordinate.fLatitude));
-
             glBegin(GL_LINES);
-            glColor3f(1.0, 0.0, 0.0);
-            glVertex3f(1.0*fX, 1.0*fY, 1.0*fZ);
-            glVertex3f(1.05*fX, 1.05*fY, 1.05*fZ);
+            glColor4f(oCoordinate.fColorR, oCoordinate.fColorG, oCoordinate.fColorB, 0.5);
+            glVertex3f(1.0*oCoordinate.fX, 1.0*oCoordinate.fY, 1.0*oCoordinate.fZ);
+            glVertex3f(1.05*oCoordinate.fX, 1.05*oCoordinate.fY, 1.05*oCoordinate.fZ);
             glEnd();
 
             glBegin(GL_POINTS);
-            glColor4f(1.0, 0.0, 0.0, 0.5);
-            glVertex3f(fX, fY, fZ);
+            glColor4f(oCoordinate.fColorR, oCoordinate.fColorG, oCoordinate.fColorB, 0.5);
+            glVertex3f(oCoordinate.fX, oCoordinate.fY, oCoordinate.fZ);
             glEnd();
 
             glPopMatrix();

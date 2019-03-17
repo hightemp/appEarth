@@ -4,5 +4,6 @@
         <file>world_cities.csv</file>
         <file>fcolorboxshader.fsh</file>
         <file>vcolorboxshader.vsh</file>
+        <file>earth_political.jpg</file>
     </qresource>
 </RCC>

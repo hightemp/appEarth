@@ -13,8 +13,12 @@
 #include <QLabel>
 #include <QStringListModel>
 #include <QPushButton>
+#include <QListView>
+#include <QSortFilterProxyModel>
+#include <QLineEdit>
 #include "additionalpointswindow.h"
 #include "surface.h"
+#include "checkablestringlistmodel.h"
 
 class AdditionalPointsWindow;
 
@@ -42,20 +46,31 @@ public:
     QCheckBox *oShowMousePositionVectorsCheckBox;
     QCheckBox *oShowAxisCheckBox;
     QCheckBox *oShowEarthCheckBox;
+    QCheckBox *oShowPoliticalEarthMapCheckBox;
     QCheckBox *oShowCentersCheckBox;
     QCheckBox *oShowColorBoxCheckBox;
     QCheckBox *oShowCitiesCheckBox;
     QCheckBox *oShowCityCheckBox;
-    QComboBox *oCityComboBox;
+    QListView *oCitiesList;
+    CheckableStringListModel *oCitiesListModel;
+    QSortFilterProxyModel *oCitiesListProxyModel;
+    QLineEdit *oCitiesFilterLineEdit;
     QStringListModel *oCityStringListModel;
     QCheckBox *oShowAdditionalPointsCheckBox;
+    QListView *oAdditionalPointsList;
+    QSortFilterProxyModel *oAdditionalPointsListProxyModel;
+    CheckableStringListModel *oAdditionalPointsListModel;
+    QLineEdit *oAdditionalPointsFilterLineEdit;
     AdditionalPointsWindow *oAdditionalPointsWindow;
     QPushButton *oShowoAdditionalPointsWindowButton;
 
 public slots:
+    void fnOnListModelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>());
+    void fnUpdateAdditionalPointsList(QStringList *oCitiesNames);
     void fnOnShowMousePositionVectorsChange(bool bValue);
     void fnOnShowAxisCheckBoxChange(bool bValue);
     void fnOnShowEarthCheckBoChange(bool bValue);
+    void fnOnShowPoliticalEarthMapCheckBoChange(bool bValue);
     void fnOnShowCentersCheckBoChange(bool bValue);
     void fnOnShowColorBoxCheckBoChange(bool bValue);
     void fnOnShowCitiesCheckBoxChange(bool bValue);

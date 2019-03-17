@@ -1,5 +1,7 @@
-uniform sampler2D s2DTexture;
+uniform sampler2D s2DEarthTexture;
+uniform sampler2D s2DEarthPoliticalTexture;
 uniform bool bShowCenters;
+uniform bool bShowPoliticalEarthMap;
 uniform float fCentersRadius;
 uniform lowp mat4 m4Projection;
 uniform lowp mat4 m4ModelView;
@@ -120,9 +122,20 @@ void main(void)
 {
     gl_FragColor = mix(
         vec4(fnGetColorByPosition(), 1.0),
-        vec4(texture2D(s2DTexture, gl_TexCoord[0].xy).rgb, 1.0),
+        vec4(texture2D(s2DEarthTexture, gl_TexCoord[0].xy).rgb, 1.0),
         vec4(0.5)
     );
+
+    if (bShowPoliticalEarthMap) {
+        vec2 v2EarthPoliticalTextureCoords = gl_TexCoord[0].xy;
+        v2EarthPoliticalTextureCoords[0] += 0.417;
+
+        gl_FragColor = mix(
+            gl_FragColor,
+            vec4(texture2D(s2DEarthPoliticalTexture, v2EarthPoliticalTextureCoords).rgb, 1.0),
+            vec4(0.5)
+        );
+    }
     //gl_FragColor = vec4(vertex[0]/length(vertex), vertex[1]/length(vertex), vertex[2]/length(vertex), 0.5) + gl_Color;
     //texture2D(texture, gl_TexCoord[0].xy);
 }

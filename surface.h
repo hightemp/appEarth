@@ -33,9 +33,19 @@ struct Coordinate {
 
     }
 
+    QString *psCityName;
     float fLatitude = 0;
     float fLongitude = 0;
-    QString *psCityName;
+    float fColorR = 1.0;
+    float fColorG = 0.0;
+    float fColorB = 0.0;
+    float fX = 0.0;
+    float fY = 0.0;
+    float fZ = 0.0;
+    bool bShowDirection = false;
+    bool bShow = false;
+    float fDirectionLatitude = 0;
+    float fDirectionLongitude = 0;
 };
 
 class Surface : public QOpenGLWidget
@@ -59,6 +69,7 @@ public:
 
 public:
     QOpenGLTexture *oEarthTexture;
+    QOpenGLTexture *oEarthPoliticalTexture;
     QVector<Coordinate> *oCitiesCoordinates;
     QStringList *oCitiesNames;
     QVector<Coordinate> *oAdditionalPointsCoordinates;
@@ -78,6 +89,7 @@ public:
     bool bShowMousePositionVectors = false;
     bool bShowAxis = true;
     bool bShowEarth = true;
+    bool bShowPoliticalEarthMap = true;
     bool bShowCenters = true;
     bool bShowColorBox = true;
     bool bShowCities = true;

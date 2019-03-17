@@ -22,6 +22,10 @@ AdditionalPointsWindow::AdditionalPointsWindow(QWidget *parent):
     this->oGroupBoxLayout = new QVBoxLayout();
     this->oGroupBox->setLayout(this->oGroupBoxLayout);
 
+    this->oCommentLabel = new QLabel();
+    this->oCommentLabel->setText("Name, Latitude, Longitude[, Color, Direction Latitude, Direction Longitude]");
+    this->oGroupBoxLayout->addWidget(this->oCommentLabel);
+
     this->oAdditionalPointsTextEdit = new QTextEdit();
     this->oGroupBoxLayout->addWidget(this->oAdditionalPointsTextEdit);
 
@@ -38,8 +42,6 @@ AdditionalPointsWindow::AdditionalPointsWindow(QWidget *parent):
     this->oCancelButton->setText("Cancel");
     connect(this->oCancelButton, SIGNAL(clicked(bool)), this, SLOT(fnOnCancelClick(bool)));
     this->oBottomLayout->addWidget(this->oCancelButton);
-
-    this->fnLoadCSVFile();
 }
 
 void AdditionalPointsWindow::fnLoadCSVFile()
@@ -72,10 +74,31 @@ void AdditionalPointsWindow::fnLoadCSVFile()
                 oSplitedLine[2].toFloat(),
                 &oSurface->oAdditionalPointsNames->last()
             ));
+
+            Coordinate &oC = oSurface->oAdditionalPointsCoordinates->last();
+            oC.fX = cos(qDegreesToRadians(oC.fLongitude))*cos(qDegreesToRadians(oC.fLatitude));
+            oC.fY = -sin(qDegreesToRadians(oC.fLatitude));
+            oC.fZ = -sin(qDegreesToRadians(oC.fLongitude))*cos(qDegreesToRadians(oC.fLatitude));
+
+            if (oSplitedLine.length()>=4) {
+                bool bStatus = false;
+                unsigned int uiColor = QString(oSplitedLine[3]).toUInt(&bStatus, 16);
+                oC.fColorR = uiColor >> 16 & 0xFF;
+                oC.fColorG = uiColor >> 8 & 0xFF;
+                oC.fColorB = uiColor & 0xFF;
+            }
+
+            if (oSplitedLine.length()>=6) {
+                oC.bShowDirection = true;
+                oC.fDirectionLatitude = oSplitedLine[4].toFloat();
+                oC.fDirectionLongitude = oSplitedLine[5].toFloat();
+            }
         }
     }
 
     oCSVFile.close();
+
+    emit fnUpdatePoints(oSurface->oAdditionalPointsNames);
 }
 
 void AdditionalPointsWindow::fnOnCancelClick(bool bChecked)
@@ -120,7 +143,28 @@ void AdditionalPointsWindow::fnOnSaveClick(bool bChecked)
             oSplitedLine[2].toFloat(),
             &oSurface->oAdditionalPointsNames->last()
         ));
+
+        Coordinate &oC = oSurface->oAdditionalPointsCoordinates->last();
+        oC.fX = cos(qDegreesToRadians(oC.fLongitude))*cos(qDegreesToRadians(oC.fLatitude));
+        oC.fY = -sin(qDegreesToRadians(oC.fLatitude));
+        oC.fZ = -sin(qDegreesToRadians(oC.fLongitude))*cos(qDegreesToRadians(oC.fLatitude));
+
+        if (oSplitedLine.length()>=4) {
+            bool bStatus = false;
+            unsigned int uiColor = QString(oSplitedLine[3]).toUInt(&bStatus, 16);
+            oC.fColorR = uiColor >> 16 & 0xFF;
+            oC.fColorG = uiColor >> 8 & 0xFF;
+            oC.fColorB = uiColor & 0xFF;
+        }
+
+        if (oSplitedLine.length()>=6) {
+            oC.bShowDirection = true;
+            oC.fDirectionLatitude = oSplitedLine[4].toFloat();
+            oC.fDirectionLongitude = oSplitedLine[5].toFloat();
+        }
     }
 
     this->hide();
+
+    emit fnUpdatePoints(oSurface->oAdditionalPointsNames);
 }
